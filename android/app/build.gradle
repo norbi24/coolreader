@@ -5,11 +5,11 @@ android {
     defaultConfig {
         applicationId "org.coolreader"
         minSdkVersion 3
-        targetSdkVersion 21
+        targetSdkVersion 26
         // When new version released, version code must be incremented at least by 8
         // for compatibility with ABI versioning of split apk (see below).
-        versionCode 2001
-        versionName "3.2.2-1"
+        versionCode 2091
+        versionName "3.2.9-1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -59,6 +59,15 @@ android {
                 cmake {
                     arguments "-DCMAKE_BUILD_TYPE=Debug"
                 }
+            }
+            packagingOptions{
+                doNotStrip "*/armeabi/*.so"
+                doNotStrip "*/armeabi-v7a/*.so"
+                doNotStrip "*/arm64-v8a/*.so"
+                doNotStrip "*/x86/*.so"
+                doNotStrip "*/x86_64/*.so"
+                doNotStrip "*/mips/*.so"
+                doNotStrip "*/mips64/*.so"
             }
         }
     }
