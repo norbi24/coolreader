@@ -77,9 +77,17 @@ public class Dictionaries {
 		new DictInfo("LingoQuiz", "Lingo Quiz", "mnm.lingoquiz", "mnm.lingoquiz.ExchangeActivity", "lingoquiz.intent.action.ADD_WORD", 0).setDataKey("EXTRA_WORD"),
 		new DictInfo("LEODictionary", "LEO Dictionary", "org.leo.android.dict", "org.leo.android.dict.LeoDict", "android.intent.action.SEARCH", 0).setDataKey("query"),
 		new DictInfo("PopupDictionary", "Popup Dictionary", "com.barisatamer.popupdictionary", "com.barisatamer.popupdictionary.MainActivity", "android.intent.action.VIEW", 0),
+<<<<<<< HEAD
 		new DictInfo("GoogleTranslate", "Google Translate", "com.google.android.apps.translate", "com.google.android.apps.translate.TranslateActivity", Intent.ACTION_SEND, 4),
 		new DictInfo("YandexTranslate", "Yandex Translate", "ru.yandex.translate", "ru.yandex.translate.ui.activities.MainActivity", Intent.ACTION_SEND, 4),
 		new DictInfo("Wikipedia", "Wikipedia", "org.wikipedia", "org.wikipedia.main.MainActivity", Intent.ACTION_SEND, 4),
+=======
+
+		new DictInfo("HandyLex", "Lingea Handylex", "com.lingea.handylex.spskh2", "com.lingea.handylex.spskh2.MainActivity", Intent.ACTION_SEND, 4),
+
+
+
+>>>>>>> MyChangesBasedOnCR3.2.2-1
 	};
 
 	public static final String DEFAULT_DICTIONARY_ID = "com.ngc.fora";
@@ -146,7 +154,8 @@ public class Dictionaries {
 	private final static String DICTAN_ERROR_MESSAGE = "error.message";
 
 	private final static int FLAG_ACTIVITY_CLEAR_TASK = 0x00008000;
-	
+
+
 	public static final Logger log = L.create("cr3dict");
 	
 	@SuppressWarnings("serial")
@@ -267,6 +276,25 @@ public class Dictionaries {
 				throw new DictionaryException("Dictionary \"" + curDict.name + "\" is not installed");
 			}
 			break;
+		case 4:
+				Intent intent4 = new Intent(currentDictionary.action);
+				if (currentDictionary.className != null || DeviceInfo.getSDKLevel() == 3) {
+					intent4.setComponent(new ComponentName(
+							currentDictionary.packageName, currentDictionary.className));
+				} else {
+					intent4.setPackage(currentDictionary.packageName);
+				}
+				intent4.addFlags(0x3000000);
+				intent4.setType("text/plain");
+				//intent4.addFlags(DeviceInfo.getSDKLevel() >= 7 ? FLAG_ACTIVITY_CLEAR_TASK : Intent.FLAG_ACTIVITY_NEW_TASK);
+				if (s!=null)
+					intent4.putExtra(Intent.EXTRA_TEXT, s);
+				try {
+					mActivity.startActivity( intent4 );
+				} catch ( ActivityNotFoundException e ) {
+					throw new DictionaryException("Dictionary \"" + currentDictionary.name + "\" is not installed");
+				}
+				break;
 		}
 
 	}
