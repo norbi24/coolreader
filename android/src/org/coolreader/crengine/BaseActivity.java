@@ -1,12 +1,16 @@
 package org.coolreader.crengine;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import org.coolreader.Dictionaries;
@@ -1900,8 +1904,8 @@ public class BaseActivity extends Activity implements Settings {
 	}
 
 	
-	public static DictInfo[] getDictList() {
-		return Dictionaries.getDictList();
+	public static DictInfo[] getDictList(BaseActivity act) {
+		return Dictionaries.getDictList(act);
 	}
 
 	public boolean isPackageInstalled(String packageName) {
@@ -1916,6 +1920,59 @@ public class BaseActivity extends Activity implements Settings {
             return false;
         }
     }
+
+	//https://stackoverflow.com/questions/8079832/asynctask-and-getinstalledpackages-fail
+	public List<PackageInfo> getInstalledPackages(Context context, int flags)
+	{
+		final PackageManager pm=context.getPackageManager();
+		//if it's Android 5.1, no need to do any special work
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+
+			return pm.getInstalledPackages(flags);
+		//else, protect against exception, and use a fallback if needed:
+		try
+		{
+			return pm.getInstalledPackages(flags);
+		}
+		catch(Exception ignored)
+		{
+			//we don't care why it didn't succeed. We'll do it using an alternative way instead
+		}
+		// use fallback:
+		Process process;
+		List<PackageInfo> result=new ArrayList<>();
+		BufferedReader bufferedReader=null;
+		try
+		{
+			process=Runtime.getRuntime().exec("pm list packages");
+			bufferedReader=new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while((line=bufferedReader.readLine())!=null)
+			{
+				final String packageName=line.substring(line.indexOf(':')+1);
+				final PackageInfo packageInfo=pm.getPackageInfo(packageName,flags);
+				result.add(packageInfo);
+			}
+			process.waitFor();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(bufferedReader!=null)
+				try
+				{
+					bufferedReader.close();
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
+		}
+		return result;
+	}
 
 	private Boolean hasHardwareMenuKey = null;
 	

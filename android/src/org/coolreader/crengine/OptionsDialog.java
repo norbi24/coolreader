@@ -1144,7 +1144,7 @@ public class OptionsDialog extends BaseDialog implements TabContentFactory, Opti
 		public DictOptions( OptionOwner owner, String label )
 		{
 			super( owner, label, PROP_APP_DICTIONARY );
-			DictInfo[] dicts = Dictionaries.getDictList();
+			DictInfo[] dicts = Dictionaries.getDictList(mActivity);
 			setDefaultValue(dicts[0].id);
 			for (DictInfo dict : dicts) {
 				boolean installed = mActivity.isPackageInstalled(dict.packageName);
@@ -1164,7 +1164,7 @@ public class OptionsDialog extends BaseDialog implements TabContentFactory, Opti
         public DictOptions2( OptionOwner owner, String label )
         {
             super( owner, label, PROP_APP_DICTIONARY_2 );
-            DictInfo[] dicts = Dictionaries.getDictList();
+            DictInfo[] dicts = Dictionaries.getDictList(mActivity);
             setDefaultValue(dicts[0].id);
             for (DictInfo dict : dicts) {
                 boolean installed = mActivity.isPackageInstalled(dict.packageName);

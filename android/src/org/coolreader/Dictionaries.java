@@ -46,48 +46,58 @@ public class Dictionaries {
 	public static class DictInfo {
 		public final String id; 
 		public final String name;
+		public final String packagePrefix;
 		public final String packageName;
 		public final String className;
 		public final String action;
 		public final Integer internal;
 		public String dataKey = SearchManager.QUERY; 
-		public DictInfo ( String id, String name, String packageName, String className, String action, Integer internal ) {
+		public DictInfo ( String id, String name, String packagePrefix,  String packageName, String className, String action, Integer internal) {
 			this.id = id;
 			this.name = name;
 			this.packageName = packageName;
 			this.className = className;
 			this.action = action;
 			this.internal = internal;
+			this.packagePrefix = packagePrefix;
 		}
 		public DictInfo setDataKey(String key) { this.dataKey = key; return this; }
 	}
 
 	static final DictInfo dicts[] = {
-		new DictInfo("Fora", "Fora Dictionary", "com.ngc.fora", "com.ngc.fora.ForaDictionary", Intent.ACTION_SEARCH, 0),
-		new DictInfo("ColorDict", "ColorDict", "com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 0),
-		new DictInfo("ColorDictApi", "ColorDict new / GoldenDict", "com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 1),
-		new DictInfo("AardDict", "Aard Dictionary", "aarddict.android", "aarddict.android.Article", Intent.ACTION_SEARCH, 0),
-		new DictInfo("AardDictLookup", "Aard Dictionary Lookup", "aarddict.android", "aarddict.android.Lookup", Intent.ACTION_SEARCH, 0),
-		new DictInfo("Aard2", "Aard 2 Dictionary", "itkach.aard2", "aard2.lookup", Intent.ACTION_SEARCH, 3),
-		new DictInfo("Dictan", "Dictan Dictionary", "info.softex.dictan", null, Intent.ACTION_VIEW, 2),
-		new DictInfo("FreeDictionary.org", "Free Dictionary . org", "org.freedictionary", "org.freedictionary.MainActivity", "android.intent.action.VIEW", 0),
-		new DictInfo("ABBYYLingvo", "ABBYY Lingvo", "com.abbyy.mobile.lingvo.market", null /*com.abbyy.mobile.lingvo.market.MainActivity*/, "com.abbyy.mobile.lingvo.intent.action.TRANSLATE", 0).setDataKey("com.abbyy.mobile.lingvo.intent.extra.TEXT"),
+		new DictInfo("Fora", "Fora Dictionary",  "", "com.ngc.fora", "com.ngc.fora.ForaDictionary", Intent.ACTION_SEARCH, 0),
+		new DictInfo("ColorDict", "ColorDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 0),
+		new DictInfo("ColorDictApi", "ColorDict new / GoldenDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 1),
+		new DictInfo("AardDict", "Aard Dictionary", "","aarddict.android", "aarddict.android.Article", Intent.ACTION_SEARCH, 0),
+		new DictInfo("AardDictLookup", "Aard Dictionary Lookup", "","aarddict.android", "aarddict.android.Lookup", Intent.ACTION_SEARCH, 0),
+		new DictInfo("Aard2", "Aard 2 Dictionary", "","itkach.aard2", "aard2.lookup", Intent.ACTION_SEARCH, 3),
+		new DictInfo("Dictan", "Dictan Dictionary", "","info.softex.dictan", null, Intent.ACTION_VIEW, 2),
+		new DictInfo("FreeDictionary.org", "Free Dictionary . org", "","org.freedictionary", "org.freedictionary.MainActivity", "android.intent.action.VIEW", 0),
+		new DictInfo("ABBYYLingvo", "ABBYY Lingvo", "","com.abbyy.mobile.lingvo.market", null /*com.abbyy.mobile.lingvo.market.MainActivity*/, "com.abbyy.mobile.lingvo.intent.action.TRANSLATE", 0).setDataKey("com.abbyy.mobile.lingvo.intent.extra.TEXT"),
 		//new DictInfo("ABBYYLingvoLive", "ABBYY Lingvo Live", "com.abbyy.mobile.lingvolive", null, "com.abbyy.mobile.lingvo.intent.action.TRANSLATE", 0).setDataKey("com.abbyy.mobile.lingvo.intent.extra.TEXT"),
-		new DictInfo("LingoQuizLite", "Lingo Quiz Lite", "mnm.lite.lingoquiz", "mnm.lite.lingoquiz.ExchangeActivity", "lingoquiz.intent.action.ADD_WORD", 0).setDataKey("EXTRA_WORD"),
-		new DictInfo("LingoQuiz", "Lingo Quiz", "mnm.lingoquiz", "mnm.lingoquiz.ExchangeActivity", "lingoquiz.intent.action.ADD_WORD", 0).setDataKey("EXTRA_WORD"),
-		new DictInfo("LEODictionary", "LEO Dictionary", "org.leo.android.dict", "org.leo.android.dict.LeoDict", "android.intent.action.SEARCH", 0).setDataKey("query"),
-		new DictInfo("PopupDictionary", "Popup Dictionary", "com.barisatamer.popupdictionary", "com.barisatamer.popupdictionary.MainActivity", "android.intent.action.VIEW", 0),
-<<<<<<< HEAD
-		new DictInfo("GoogleTranslate", "Google Translate", "com.google.android.apps.translate", "com.google.android.apps.translate.TranslateActivity", Intent.ACTION_SEND, 4),
-		new DictInfo("YandexTranslate", "Yandex Translate", "ru.yandex.translate", "ru.yandex.translate.ui.activities.MainActivity", Intent.ACTION_SEND, 4),
-		new DictInfo("Wikipedia", "Wikipedia", "org.wikipedia", "org.wikipedia.main.MainActivity", Intent.ACTION_SEND, 4),
-=======
+		new DictInfo("LingoQuizLite", "Lingo Quiz Lite", "","mnm.lite.lingoquiz", "mnm.lite.lingoquiz.ExchangeActivity", "lingoquiz.intent.action.ADD_WORD", 0).setDataKey("EXTRA_WORD"),
+		new DictInfo("LingoQuiz", "Lingo Quiz", "","mnm.lingoquiz", "mnm.lingoquiz.ExchangeActivity", "lingoquiz.intent.action.ADD_WORD", 0).setDataKey("EXTRA_WORD"),
+		new DictInfo("LEODictionary", "LEO Dictionary", "","org.leo.android.dict", "org.leo.android.dict.LeoDict", "android.intent.action.SEARCH", 0).setDataKey("query"),
+		new DictInfo("PopupDictionary", "Popup Dictionary", "","com.barisatamer.popupdictionary", "com.barisatamer.popupdictionary.MainActivity", "android.intent.action.VIEW", 0),
 
-		new DictInfo("HandyLex", "Lingea Handylex", "com.lingea.handylex.spskh2", "com.lingea.handylex.spskh2.MainActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("GoogleTranslate", "Google Translate", "","com.google.android.apps.translate", "com.google.android.apps.translate.TranslateActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("YandexTranslate", "Yandex Translate", "","ru.yandex.translate", "ru.yandex.translate.ui.activities.MainActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("Wikipedia", "Wikipedia","", "org.wikipedia", "org.wikipedia.main.MainActivity", Intent.ACTION_SEND, 4),
+
+		//new DictInfo("HandyLex", "Lingea Handylex SK-ES", "com.lingea.handylex.spskh2", "com.lingea.handylex.spskh2.MainActivity", Intent.ACTION_SEND, 4),
+
+		new DictInfo("HandyLexEsSkh2", "Lingea Handylex Plus ES-SK", "com.lingea.handylex","com.lingea.handylex.spskh2", "com.lingea.handylex.spskh2.MainActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("HandyLexEnSkh2", "Lingea Handylex Plus EN-SK", "com.lingea.handylex","com.lingea.handylex.enskh2", "com.lingea.handylex.enskh2.MainActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("HandyLexEnSkh1", "Lingea Handylex EN-SK", "com.lingea.handylex","com.lingea.handylex.enskh1", "com.lingea.handylex.enskh1.MainActivity", Intent.ACTION_SEND, 4),
+		new DictInfo("HandyLexEnCzh1", "Lingea Handylex EN-CZ", "com.lingea.handylex","com.lingea.handylex.enczh1", "com.lingea.handylex.enczh1.MainActivity", Intent.ACTION_SEND, 4),
 
 
 
->>>>>>> MyChangesBasedOnCR3.2.2-1
+		new DictInfo("PONS", "PONS DE-ES", "com.slovoed.noreg.pons","com.slovoed.noreg.pons.german_spanish", "com.paragon.dictionary.ShareActivity", Intent.ACTION_SEND, 4),
+
+
+
+
 	};
 
 	public static final String DEFAULT_DICTIONARY_ID = "com.ngc.fora";
@@ -105,8 +115,37 @@ public class Dictionaries {
 	}
 		
 	
-	public static DictInfo[] getDictList() {
-		return dicts;
+	public static DictInfo[] getDictList(BaseActivity act) {
+
+		ArrayList<String> notInstCommonPrefixes = new ArrayList<>();
+		ArrayList<DictInfo> dictsList = new ArrayList<>();
+
+
+		for (DictInfo dict : dicts) {
+			boolean installed = act.isPackageInstalled(dict.packageName);
+
+				if (dict.packagePrefix != "") {
+					if(!installed) {
+						if (!notInstCommonPrefixes.contains(dict.packagePrefix)) {
+							dictsList.add(dict);
+						}
+					}
+					else {
+						dictsList.add(dict);
+					}
+					if (!notInstCommonPrefixes.contains(dict.packagePrefix)) {
+						notInstCommonPrefixes.add(dict.packagePrefix);
+					}
+
+				} else {
+					dictsList.add(dict); // "normal" dictionary, always add it to the list
+				}
+
+
+		}
+
+		//DictInfo [] dictOut = dictsList.toArray(new DictInfo[dictsList.size()]);
+		return dictsList.toArray(new DictInfo[dictsList.size()]);
 	}
 
 
@@ -276,25 +315,7 @@ public class Dictionaries {
 				throw new DictionaryException("Dictionary \"" + curDict.name + "\" is not installed");
 			}
 			break;
-		case 4:
-				Intent intent4 = new Intent(currentDictionary.action);
-				if (currentDictionary.className != null || DeviceInfo.getSDKLevel() == 3) {
-					intent4.setComponent(new ComponentName(
-							currentDictionary.packageName, currentDictionary.className));
-				} else {
-					intent4.setPackage(currentDictionary.packageName);
-				}
-				intent4.addFlags(0x3000000);
-				intent4.setType("text/plain");
-				//intent4.addFlags(DeviceInfo.getSDKLevel() >= 7 ? FLAG_ACTIVITY_CLEAR_TASK : Intent.FLAG_ACTIVITY_NEW_TASK);
-				if (s!=null)
-					intent4.putExtra(Intent.EXTRA_TEXT, s);
-				try {
-					mActivity.startActivity( intent4 );
-				} catch ( ActivityNotFoundException e ) {
-					throw new DictionaryException("Dictionary \"" + currentDictionary.name + "\" is not installed");
-				}
-				break;
+
 		}
 
 	}
