@@ -1922,9 +1922,9 @@ public class BaseActivity extends Activity implements Settings {
     }
 
 	//https://stackoverflow.com/questions/8079832/asynctask-and-getinstalledpackages-fail
-	public List<PackageInfo> getInstalledPackages(Context context, int flags)
+	public List<PackageInfo> getInstalledPackages(int flags)
 	{
-		final PackageManager pm=context.getPackageManager();
+		PackageManager pm=getPackageManager();
 		//if it's Android 5.1, no need to do any special work
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
 
