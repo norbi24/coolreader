@@ -32,66 +32,69 @@ public class Dictionaries {
 	}
 
 	private Integer iDic2IsActive = 0;
-	private static Boolean dictsInitialized = false;
 
 	public Dictionaries(Activity activity) {
 		mActivity = activity;
+		/*
 		currentDictionary = defaultDictionary();
 		currentDictionary2 = defaultDictionary();
+		*/
 	}
 
 	public void findDictionaries(BaseActivity act)
 	{
 
-		if(!dictsInitialized) {
-			dictsInitialized = true;
-			List<String> packageNames = act.getInstalledDictionaries();
-			ArrayList<DictInfo> dics2Add = new ArrayList<>();
-			for (DictInfo dict : dictsDynamic) {
-				String pkgPrefix = dict.packagePrefix;
-				Boolean dictFound = false;
+		List<String> packageNames = act.getInstalledDictionaries();
+		ArrayList<DictInfo> dics2Add = new ArrayList<>();
+		for (DictInfo dict : dictsDynamic) {
+			String pkgPrefix = dict.packagePrefix;
+			Boolean dictFound = false;
 
-				for (String packageName : packageNames) {
-					if (packageName.startsWith(pkgPrefix + '.')) {
-						dictFound = true;
-						String suffix = packageName.substring(pkgPrefix.length() + 1);
-						String className = dict.className;
-						if (dict.className.indexOf('*') != -1) {
-							className = dict.className.replace("*", suffix);
-						}
-						String appName = makeApplicationName(act, packageName, suffix);
-						dics2Add.add(new DictInfo(packageName, appName, pkgPrefix, packageName, className, dict.action, dict.internal));
-
+			for (String packageName : packageNames) {
+				if (packageName.startsWith(pkgPrefix + '.')) {
+					dictFound = true;
+					String suffix = packageName.substring(pkgPrefix.length() + 1);
+					String className = dict.className;
+					if (dict.className.indexOf('*') != -1) {
+						className = dict.className.replace("*", suffix);
 					}
-				}
-				if (!dictFound) {
-					new DictInfo(dict.id, dict.name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
+					String appName = makeApplicationName(act, packageName, suffix);
+					dics2Add.add(new DictInfo(packageName, appName, pkgPrefix, packageName, className, dict.action, dict.internal));
+
 				}
 			}
-
-			if (dics2Add.size() > 0) {
-				addDictionary(dics2Add);
+			if (!dictFound) {
+				new DictInfo(dict.id, dict.name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
 			}
 		}
+
+		if (dics2Add.size() > 0) {
+			addDictionary(dics2Add);
+		}
+
+		currentDictionary = defaultDictionary();
+		currentDictionary2 = defaultDictionary();
+
 	}
 
 
 	private void addDictionary(ArrayList<DictInfo> dicts2Add) {
-		int currentSize = dicts.length;
+
+		int currentSize = dictsStatic.length;
 		int newSize = currentSize + dicts2Add.size();
 
-		DictInfo[] tempDictArray = new DictInfo[ newSize ];
+		dicts = new DictInfo[ newSize ];
 
 		for (int i=0; i < currentSize; i++)
 		{
-			tempDictArray[i] = dicts [i];
+			dicts[i] = dictsStatic [i];
 		}
 
 		for(DictInfo d : dicts2Add) {
-			tempDictArray[currentSize++] = d;
+			dicts[currentSize++] = d;
 		}
 
-		dicts = tempDictArray;
+
 	}
 	// Compose the display name for the application
 	private String makeApplicationName(BaseActivity act, String packageName, String suffix ) {
@@ -143,7 +146,9 @@ public class Dictionaries {
 		public DictInfo setDataKey(String key) { this.dataKey = key; return this; }
 	}
 
-	static  DictInfo dicts[] = {
+	static  DictInfo dicts[];
+
+	static  DictInfo dictsStatic[] = {
 		new DictInfo("Fora", "Fora Dictionary",  "", "com.ngc.fora", "com.ngc.fora.ForaDictionary", Intent.ACTION_SEARCH, 0),
 		new DictInfo("ColorDict", "ColorDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 0),
 		new DictInfo("ColorDictApi", "ColorDict new / GoldenDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 1),
