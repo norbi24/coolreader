@@ -33,6 +33,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -1923,63 +1924,23 @@ public class BaseActivity extends Activity implements Settings {
         }
     }
 
-	//https://stackoverflow.com/questions/8079832/asynctask-and-getinstalledpackages-fail
-	public List<PackageInfo> getInstalledPackages(int flags)
-	{
-		PackageManager pm=getPackageManager();
-		//if it's Android 5.1, no need to do any special work
+	public List<String> getInstalledDictionaries() {
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
+		ArrayList<String> pckgNames = new ArrayList<>();
+		Intent intent = new Intent();
+		intent.setAction(Intent.ACTION_SEND);
+		intent.setType("text/plain");
 
-			return pm.getInstalledPackages(flags);
-		//else, protect against exception, and use a fallback if needed:
-		try
-		{
-			return pm.getInstalledPackages(flags);
-		}
-		catch(Exception ignored)
-		{
-			//we don't care why it didn't succeed. We'll do it using an alternative way instead
+		PackageManager pm = getPackageManager();
+		List<ResolveInfo> activities = pm.queryIntentActivities(intent, 0);
+		for (ResolveInfo act : activities) {
+			ActivityInfo ai = act.activityInfo;
+			pckgNames.add(ai.applicationInfo.packageName);
 		}
 
-		// use fallback:
-		Process process;
-		List<PackageInfo> result=new ArrayList<>();
-		BufferedReader bufferedReader=null;
-		try
-		{
-			process=Runtime.getRuntime().exec("pm list packages");
-			bufferedReader=new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String line;
-			while((line=bufferedReader.readLine())!=null)
-			{
-				final String packageName=line.substring(line.indexOf(':')+1);
-				PackageInfo packageInfo=pm.getPackageInfo(packageName,flags);
-
-
-
-				result.add(packageInfo);
-			}
-			process.waitFor();
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if(bufferedReader!=null)
-				try
-				{
-					bufferedReader.close();
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-		}
-		return result;
+		return pckgNames;
 	}
+
 
 	public String getApplicationName(String packageName) throws NameNotFoundException {
 

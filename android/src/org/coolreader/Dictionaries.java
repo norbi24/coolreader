@@ -10,7 +10,6 @@ import android.app.SearchManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ public class Dictionaries {
 	}
 
 	private Integer iDic2IsActive = 0;
+	private static Boolean dictsInitialized = false;
 
 	public Dictionaries(Activity activity) {
 		mActivity = activity;
@@ -42,32 +42,36 @@ public class Dictionaries {
 
 	public void findDictionaries(BaseActivity act)
 	{
-		List<PackageInfo> packageInfos = act.getInstalledPackages(PackageManager.GET_META_DATA);
-		ArrayList<DictInfo> dics2Add = new ArrayList<>();
-		for (DictInfo dict : dictsDynamic) {
-			String pkgPrefix = dict.packagePrefix;
-			Boolean dictFound = false;
 
-			for(PackageInfo p : packageInfos) {
-				if(p.packageName.startsWith(pkgPrefix+'.')) {
-					dictFound = true;
-					String suffix = p.packageName.substring(pkgPrefix.length()+1);
-					String className = dict.className;
-					if(dict.className.indexOf('*')!= -1) {
-						className = dict.className.replace("*", suffix);
+		if(!dictsInitialized) {
+			dictsInitialized = true;
+			List<String> packageNames = act.getInstalledDictionaries();
+			ArrayList<DictInfo> dics2Add = new ArrayList<>();
+			for (DictInfo dict : dictsDynamic) {
+				String pkgPrefix = dict.packagePrefix;
+				Boolean dictFound = false;
+
+				for (String packageName : packageNames) {
+					if (packageName.startsWith(pkgPrefix + '.')) {
+						dictFound = true;
+						String suffix = packageName.substring(pkgPrefix.length() + 1);
+						String className = dict.className;
+						if (dict.className.indexOf('*') != -1) {
+							className = dict.className.replace("*", suffix);
+						}
+						String appName = makeApplicationName(act, packageName, suffix);
+						dics2Add.add(new DictInfo(packageName, appName, pkgPrefix, packageName, className, dict.action, dict.internal));
+
 					}
-					String appName = makeApplicationName(act, p, suffix);
-					dics2Add.add(new DictInfo(p.packageName, appName, pkgPrefix, p.packageName, className, dict.action, dict.internal));
-
+				}
+				if (!dictFound) {
+					new DictInfo(dict.id, dict.name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
 				}
 			}
-			if(!dictFound) {
-				new DictInfo(dict.id, dict.name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
-			}
-		}
 
-		if(dics2Add.size() > 0) {
-			addDictionary(dics2Add);
+			if (dics2Add.size() > 0) {
+				addDictionary(dics2Add);
+			}
 		}
 	}
 
@@ -90,25 +94,25 @@ public class Dictionaries {
 		dicts = tempDictArray;
 	}
 	// Compose the display name for the application
-	private String makeApplicationName(BaseActivity act, PackageInfo p, String suffix ) {
+	private String makeApplicationName(BaseActivity act, String packageName, String suffix ) {
 		String appName;
 		try {
-			if(p.packageName.startsWith("com.lingea.handylex")) {
+			if(packageName.startsWith("com.lingea.handylex")) {
 				// Lingea: as appl name it shows Handylex, add the lang combination + info on Plus variant or not mased on the last lart of namespace
 				// e.g. spskh2 would show Handylex Plus SP-SK
 				// enskh1 would show Handylex EN-SK
-				String suffixDisplay2 = suffix.substring(0, 2).toUpperCase()  + '-' + suffix.substring(2, 4).toUpperCase();
-				String suffixDisplay = (suffix.indexOf("h2") != -1) ? " Plus " : "";
-				appName = act.getApplicationName(p.packageName) + suffixDisplay + " (" + suffixDisplay2 + ')';
+				String suffixDisplay = suffix.substring(0, 2).toUpperCase()  + '-' + suffix.substring(2, 4).toUpperCase();
+
+				appName = act.getApplicationName(packageName) +  " (" + suffixDisplay + ')';
 			}
 			else {
 				// PONS Dictionary (german_spanisch)
-				appName = "PONS " + act.getApplicationName(p.packageName) + " (" + suffix + ')';
+				appName = "PONS " + act.getApplicationName(packageName) + " (" + suffix + ')';
 			}
 
 		}
 		catch(Exception ex) {
-			appName =  p.packageName;
+			appName = packageName;
 
 		}
 		return appName;
