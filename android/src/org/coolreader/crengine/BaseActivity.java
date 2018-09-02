@@ -29,6 +29,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -134,6 +135,7 @@ public class BaseActivity extends Activity implements Settings {
 		super.onCreate(savedInstanceState);
 
 		mDictionaries = new Dictionaries(this);
+		mDictionaries.findDictionaries(this);
 
 		try {
 			PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -1905,7 +1907,7 @@ public class BaseActivity extends Activity implements Settings {
 
 	
 	public static DictInfo[] getDictList(BaseActivity act) {
-		return Dictionaries.getDictList(act);
+		return Dictionaries.getDictList();
 	}
 
 	public boolean isPackageInstalled(String packageName) {
@@ -1926,6 +1928,7 @@ public class BaseActivity extends Activity implements Settings {
 	{
 		PackageManager pm=getPackageManager();
 		//if it's Android 5.1, no need to do any special work
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)
 
 			return pm.getInstalledPackages(flags);
@@ -1938,6 +1941,7 @@ public class BaseActivity extends Activity implements Settings {
 		{
 			//we don't care why it didn't succeed. We'll do it using an alternative way instead
 		}
+
 		// use fallback:
 		Process process;
 		List<PackageInfo> result=new ArrayList<>();
@@ -1950,7 +1954,10 @@ public class BaseActivity extends Activity implements Settings {
 			while((line=bufferedReader.readLine())!=null)
 			{
 				final String packageName=line.substring(line.indexOf(':')+1);
-				final PackageInfo packageInfo=pm.getPackageInfo(packageName,flags);
+				PackageInfo packageInfo=pm.getPackageInfo(packageName,flags);
+
+
+
 				result.add(packageInfo);
 			}
 			process.waitFor();
@@ -1972,6 +1979,13 @@ public class BaseActivity extends Activity implements Settings {
 				}
 		}
 		return result;
+	}
+
+	public String getApplicationName(String packageName) throws NameNotFoundException {
+
+		PackageManager pm=getPackageManager();
+		ApplicationInfo info = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+		return (String) pm.getApplicationLabel(info);
 	}
 
 	private Boolean hasHardwareMenuKey = null;

@@ -87,7 +87,7 @@ public class DictsDlg extends BaseDialog {
 		}
 
 		public boolean isEmpty() {
-			return Dictionaries.getDictList(mCoolReader).length==0;
+			return Dictionaries.getDictList().length==0;
 		}
 
 		private ArrayList<DataSetObserver> observers = new ArrayList<DataSetObserver>();

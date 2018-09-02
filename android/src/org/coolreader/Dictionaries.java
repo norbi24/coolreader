@@ -39,6 +39,80 @@ public class Dictionaries {
 		currentDictionary = defaultDictionary();
 		currentDictionary2 = defaultDictionary();
 	}
+
+	public void findDictionaries(BaseActivity act)
+	{
+		List<PackageInfo> packageInfos = act.getInstalledPackages(PackageManager.GET_META_DATA);
+		ArrayList<DictInfo> dics2Add = new ArrayList<>();
+		for (DictInfo dict : dictsDynamic) {
+			String pkgPrefix = dict.packagePrefix;
+			Boolean dictFound = false;
+
+			for(PackageInfo p : packageInfos) {
+				if(p.packageName.startsWith(pkgPrefix+'.')) {
+					dictFound = true;
+					String suffix = p.packageName.substring(pkgPrefix.length()+1);
+					String className = dict.className;
+					if(dict.className.indexOf('*')!= -1) {
+						className = dict.className.replace("*", suffix);
+					}
+					String appName = makeApplicationName(act, p, suffix);
+					dics2Add.add(new DictInfo(p.packageName, appName, pkgPrefix, p.packageName, className, dict.action, dict.internal));
+
+				}
+			}
+			if(!dictFound) {
+				new DictInfo(dict.id, dict.name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
+			}
+		}
+
+		if(dics2Add.size() > 0) {
+			addDictionary(dics2Add);
+		}
+	}
+
+
+	private void addDictionary(ArrayList<DictInfo> dicts2Add) {
+		int currentSize = dicts.length;
+		int newSize = currentSize + dicts2Add.size();
+
+		DictInfo[] tempDictArray = new DictInfo[ newSize ];
+
+		for (int i=0; i < currentSize; i++)
+		{
+			tempDictArray[i] = dicts [i];
+		}
+
+		for(DictInfo d : dicts2Add) {
+			tempDictArray[currentSize++] = d;
+		}
+
+		dicts = tempDictArray;
+	}
+	// Compose the display name for the application
+	private String makeApplicationName(BaseActivity act, PackageInfo p, String suffix ) {
+		String appName;
+		try {
+			if(p.packageName.startsWith("com.lingea.handylex")) {
+				// Lingea: as appl name it shows Handylex, add the lang combination + info on Plus variant or not mased on the last lart of namespace
+				// e.g. spskh2 would show Handylex Plus SP-SK
+				// enskh1 would show Handylex EN-SK
+				String suffixDisplay2 = suffix.substring(0, 2).toUpperCase()  + '-' + suffix.substring(2, 4).toUpperCase();
+				String suffixDisplay = (suffix.indexOf("h2") != -1) ? " Plus " : "";
+				appName = act.getApplicationName(p.packageName) + suffixDisplay + " (" + suffixDisplay2 + ')';
+			}
+			else {
+				// PONS Dictionary (german_spanisch)
+				appName = "PONS " + act.getApplicationName(p.packageName) + " (" + suffix + ')';
+			}
+
+		}
+		catch(Exception ex) {
+			appName =  p.packageName;
+
+		}
+		return appName;
+	}
 	
 	DictInfo currentDictionary;
 	DictInfo currentDictionary2;
@@ -65,7 +139,7 @@ public class Dictionaries {
 		public DictInfo setDataKey(String key) { this.dataKey = key; return this; }
 	}
 
-	static final DictInfo dicts[] = {
+	static  DictInfo dicts[] = {
 		new DictInfo("Fora", "Fora Dictionary",  "", "com.ngc.fora", "com.ngc.fora.ForaDictionary", Intent.ACTION_SEARCH, 0),
 		new DictInfo("ColorDict", "ColorDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 0),
 		new DictInfo("ColorDictApi", "ColorDict new / GoldenDict", "","com.socialnmobile.colordict", "com.socialnmobile.colordict.activity.Main", Intent.ACTION_SEARCH, 1),
@@ -84,7 +158,7 @@ public class Dictionaries {
 		new DictInfo("GoogleTranslate", "Google Translate", "","com.google.android.apps.translate", "com.google.android.apps.translate.TranslateActivity", Intent.ACTION_SEND, 4),
 		new DictInfo("YandexTranslate", "Yandex Translate", "","ru.yandex.translate", "ru.yandex.translate.ui.activities.MainActivity", Intent.ACTION_SEND, 4),
 		new DictInfo("Wikipedia", "Wikipedia","", "org.wikipedia", "org.wikipedia.main.MainActivity", Intent.ACTION_SEND, 4),
-
+		/*
 		// Lingea Handylex PLus:
 		new DictInfo("HandyLexEsSkh2", "Lingea Handylex (Plus ES-SK)", "com.lingea.handylex","com.lingea.handylex.spskh2", "com.lingea.handylex.spskh2.MainActivity", Intent.ACTION_SEND, 4),
 		new DictInfo("HandyLexEnSkh2", "Lingea Handylex (Plus EN-SK)", "com.lingea.handylex","com.lingea.handylex.enskh2", "com.lingea.handylex.enskh2.MainActivity", Intent.ACTION_SEND, 4),
@@ -95,8 +169,14 @@ public class Dictionaries {
 		new DictInfo("HandyLexEnCzh1", "Lingea Handylex (EN-CZ)", "com.lingea.handylex","com.lingea.handylex.enczh1", "com.lingea.handylex.enczh1.MainActivity", Intent.ACTION_SEND, 4),
 
 		new DictInfo("PONS", "PONS (DE-ES)", "com.slovoed.noreg.pons","com.slovoed.noreg.pons.german_spanish", "com.paragon.dictionary.ShareActivity", Intent.ACTION_SEND, 4),
-
+		*/
 	};
+
+	static  DictInfo dictsDynamic[] = {
+			new DictInfo("HandyLex", "Lingea Handylex", "com.lingea.handylex","com.lingea.handylex.*", "com.lingea.handylex.*.MainActivity", Intent.ACTION_SEND, 4),
+			new DictInfo("PONS", "PONS", "com.slovoed.noreg.pons","com.slovoed.noreg.pons.*", "com.paragon.dictionary.ShareActivity", Intent.ACTION_SEND, 4),
+	};
+
 
 	public static final String DEFAULT_DICTIONARY_ID = "com.ngc.fora";
 	
@@ -111,63 +191,11 @@ public class Dictionaries {
 	static DictInfo defaultDictionary() {
 		return findById(DEFAULT_DICTIONARY_ID);
 	}
-		
-	
-	public static DictInfo[] getDictList(BaseActivity act) {
-
-		ArrayList<DictInfo> uninstDictCommonPrefixes = new ArrayList<>();
-		ArrayList<DictInfo> dictsList = new ArrayList<>();
-
-		for (DictInfo dict : dicts) {
-				boolean installed = act.isPackageInstalled(dict.packageName);
-
-				// for all dictionaries with packagePrefix (different dicts from the same company)
-				// we only show ONE uninstalled line, if there are no dicts available
-				// but we of course show all which are really installed
-				if (dict.packagePrefix != "") {
-					if(installed) {
-						dictsList.add(dict);
-					}
-					else {
-						Boolean found = false;
-						for(DictInfo d : uninstDictCommonPrefixes) {
-							if(d.packagePrefix == dict.packagePrefix) {
-								found = true;
-							}
-						}
-						if(!found) {
-							uninstDictCommonPrefixes.add(dict);
-						}
-					}
-
-				} else {
-					dictsList.add(dict); // "normal" dictionary, always add it to the list
-				}
-		}
-		// Now check, whether to add still a DictInfo for uninstalled dicts with packagePrefix:
-		// Only do so, if there is NONE dict of this grouop already among installed dictionaries
-		for (DictInfo dict : uninstDictCommonPrefixes) {
-
-			Boolean alreadyInstalled = false;
-			for(DictInfo d : dictsList) {
-				if(d.packagePrefix == dict.packagePrefix) {
-					alreadyInstalled = true;
-				}
-			}
-			if(!alreadyInstalled) {
-				int pos = dict.name.indexOf('(');
-				if (pos != -1) {
-					String name = dict.name.substring(0, pos);
-					DictInfo dictNotInstalled = new DictInfo(dict.id, name, dict.packagePrefix, dict.packageName, dict.className, dict.action, dict.internal);
-					dictsList.add(dictNotInstalled); // manipulate the name to remove the () part just to get only one general name
-				}
-			}
-		}
 
 
-		return dictsList.toArray(new DictInfo[dictsList.size()]);
+	public static DictInfo[] getDictList() {
+		return dicts;
 	}
-
 
 	public static List<DictInfo> getDictListExt(BaseActivity act, boolean bOnlyInstalled) {
 		ArrayList<DictInfo> dlist = new ArrayList<DictInfo>();
