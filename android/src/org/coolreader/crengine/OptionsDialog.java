@@ -671,6 +671,8 @@ public class OptionsDialog extends BaseDialog implements TabContentFactory, Opti
 				
 				addKey(listView, KeyEvent.KEYCODE_2, "Up");
 				addKey(listView, KeyEvent.KEYCODE_8, "Down");
+			} else if ( DeviceInfo.EINK_TOLINO ) {
+				addKey(listView, KeyEvent.KEYCODE_BACK, "Back");
 			} else if ( DeviceInfo.SONY_NAVIGATION_KEYS ) {
 //				addKey(listView, KeyEvent.KEYCODE_DPAD_UP, "Prev button");
 //				addKey(listView, KeyEvent.KEYCODE_DPAD_DOWN, "Next button");
@@ -736,7 +738,9 @@ public class OptionsDialog extends BaseDialog implements TabContentFactory, Opti
 					addKey(listView, KeyEvent.KEYCODE_CAMERA, "Camera", keyFlags);
 				if (KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_ESCAPE))
 					addKey(listView, ReaderView.KEYCODE_ESCAPE, "Escape", keyFlags);
+
 				addKey(listView, KeyEvent.KEYCODE_HEADSETHOOK, "Headset Hook");
+
 			}
 
 			dlg.setView(listView);
