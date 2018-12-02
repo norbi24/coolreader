@@ -196,6 +196,15 @@ public class ReaderViewLayout extends ViewGroup implements Settings {
 				}
 				toolbarBackground.setLocation(location);
 			}
+			else {
+				if(DeviceInfo.EINK_SOFT_REFRESH) {
+					// unclear why this is necessary, but with soft refresh page refresh was working only if toolbar was visible ...
+					// if not, only this change helped ... perhaps a collision between status line of CR and the system ?
+					// t= 16 sets the top of the status line ...
+					t = 16;
+				}
+			}
+
 			Rect statusRc = new Rect(l, t, r, b);
 			if (statusBarLocation == VIEWER_STATUS_TOP) {
 				statusRc.bottom = t + statusView.getMeasuredHeight();

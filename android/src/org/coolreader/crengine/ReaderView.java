@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -44,7 +45,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 	public static final Logger log = L.create("rv", Log.VERBOSE);
 	public static final Logger alog = L.create("ra", Log.WARN);
 
-	private final SurfaceView surface;
+	private final ReaderSurface surface;
 	private final BookView bookView;
 	public SurfaceView getSurface() { return surface; }
 	
@@ -58,17 +59,80 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 	
 	public class ReaderSurface extends SurfaceView implements BookView {
 
+
+
+		/*** THis is due to suppor of negative inversion needed for soft-refresh ***/
+		float[] colorMatrix_Negative = {
+				-1.0f, 0,     0,     0,    255, // red
+				0,     -1.0f, 0,     0,    255, // green
+				0,     0,     -1.0f, 0,    255, // blue
+				0,     0,     0,     1.0f, 0    // alpha
+		};
+		private Paint mPaintNegative = new Paint();
+		private ColorFilter colorFilter_Negative = new ColorMatrixColorFilter(colorMatrix_Negative);
+		private boolean softRefresh = false; 	// setting true triggers soft refresh on next draw
+		private int softRefreshDelay = 0;		// delay in ms between painting interted and real image in soft refresh
+
+		// Access member to request the soft refresh after particular action like page up, dowsn, etc.
+		public void requestSoftRefresh(int delay ) {
+			softRefreshDelay = delay;
+			softRefresh = true;
+		}
+		// Access member to test if soft refresh has been requested
+		public boolean isSoftRefresh( ) {
+
+			return softRefresh;
+		}
+		/*** End of soft refresh code ***/
+
 		public ReaderSurface(Context context) {
 			super(context);
 			// TODO Auto-generated constructor stub
+			mPaintNegative.setColorFilter(colorFilter_Negative);
+
 		}
 		@Override 
 		public void onPause() {
+
 			
 		}
+
+
+
 		@Override 
 		public void onResume() {
-			
+
+			if( DeviceInfo.EINK_SOFT_REFRESH) {
+
+				// we do this as after waking from sleep, empty white page was be shown
+
+				//reloadDocument(); // THis worked, but was coausing a lot of flickering after coming back from dictionary
+
+				log.d("onResume : before bookView.draw()");
+				/* this was not working ...
+				surface.requestSoftRefresh(0);
+				BackgroundThread.instance().postGUI(new Runnable() {
+					@Override
+					public void run() {
+
+						bookView.redraw();
+					}
+				});
+				*/
+
+				// this seems to work almost always ... we will see
+				surface.requestSoftRefresh(100);
+				drawPage();
+				BackgroundThread.instance().postGUI(new Runnable() {
+					public void run() {
+						mActivity.showReader();
+					}
+				});
+
+				log.d("onResume : after bookView.draw()");
+
+			}
+
 		}
 		@Override 
 	    protected void onDraw(Canvas canvas) {
@@ -134,6 +198,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 	        		log.d("onDraw() -- drawing progress " + (currentProgressPosition / 100));
 	        		drawPageBackground(canvas);
 	        		doDrawProgress(canvas, currentProgressPosition, currentProgressTitle);
+					requestSoftRefresh(0); //request soft reset to have refresh after the loading page ... just to see doc's page
 	    		} else if (mInitialized && mCurrentPageInfo != null && mCurrentPageInfo.bitmap != null) {
 	        		log.d("onDraw() -- drawing page image");
 
@@ -169,9 +234,29 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 	        		}
 	        		if ( dst.width()!=canvas.getWidth() || dst.height()!=canvas.getHeight() )
 	        			canvas.drawColor(Color.rgb(32, 32, 32));
-	        		drawDimmedBitmap(canvas, mCurrentPageInfo.bitmap, src, dst);
-	    		} else {
-	        		log.d("onDraw() -- drawing empty screen");
+
+					if ( isSoftRefresh() && DeviceInfo.EINK_SOFT_REFRESH) {
+						// If soft refresh  has been requested, at first draw interted bitmap, and then, after softREfreshDelay, the real image
+						log.d("onDraw() -- refreshing ... ");
+						softRefresh = false;
+						canvas.drawBitmap(mCurrentPageInfo.bitmap, src, dst, mPaintNegative);
+						log.d("onDraw() -- refreshed ");
+
+						postDelayed(new Runnable() {
+							public void run() {
+								log.d("onDraw() -- redraw() ");
+								redraw();
+							}
+						 }, softRefreshDelay);
+
+
+
+					} else {
+						drawDimmedBitmap(canvas, mCurrentPageInfo.bitmap, src, dst);
+					}
+
+				} else {
+	        		log.d("onDraw() -- drawing empty screen ");
 	        		drawPageBackground(canvas);
 	    		}
 	    	} catch ( Exception e ) {
@@ -530,6 +615,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 					invalidImages = true;
 					BitmapInfo bi = preparePageImage(0);
 					if ( bi!=null ) {
+						surface.requestSoftRefresh(0); //soft refresh  to see selection of text
 						bookView.draw(true);
 					}
 				}
@@ -2477,6 +2563,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 			public void done() {
 				if (res) {
 					invalidImages = true;
+					surface.requestSoftRefresh(0);  //soft refresh for sure ... not sure why anymore needed here
 					drawPage( doneHandler, false );
 				}
 				if (isMoveCommand)
@@ -2560,6 +2647,8 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 		
 		doc.applySettings(props);
         //syncViewSettings(props, save, saveDelayed);
+		surface.requestSoftRefresh(0); //to reflect changes e.g in margins etc. on coming back from options to refresh the page
+
         drawPage();
 	}
 	
@@ -3855,6 +3944,8 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 						EinkScreen.PrepareController(surface, isPartially);
 					}
 					callback.drawTo(canvas);
+
+
 					if (DeviceInfo.EINK_SCREEN){
 						EinkScreen.UpdateController(surface, isPartially);
 					}
@@ -4706,9 +4797,11 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
     		//mBitmap = null;
 	        //showProgress(1000, R.string.progress_loading);
 	        //draw();
+
 	        BackgroundThread.instance().postGUI(new Runnable() {
 				@Override
 				public void run() {
+
 					bookView.draw(false);
 				}
 			});
@@ -4795,7 +4888,7 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 		        mOpened = true;
 		        
 		        highlightBookmarks();
-		        
+				surface.requestSoftRefresh(100); //TBD: Not sure why necessary, but sometimes while chnaging books it shows empty page and this helps ...
 		        drawPage();
 		        BackgroundThread.instance().postGUI(new Runnable() {
 		        	public void run() {

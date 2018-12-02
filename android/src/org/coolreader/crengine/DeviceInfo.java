@@ -23,6 +23,7 @@ public class DeviceInfo {
 	public final static boolean EINK_ONYX;
 	public final static boolean EINK_DNS;
 	public final static boolean EINK_TOLINO;
+	public final static boolean EINK_SOFT_REFRESH;
 	public final static boolean FORCE_HC_THEME;
 	public final static boolean EINK_SONY;
 	public final static boolean SONY_NAVIGATION_KEYS;
@@ -119,7 +120,10 @@ public class DeviceInfo {
 		EINK_DNS = MANUFACTURER.toLowerCase().contentEquals("dns") && MODEL.startsWith("DNS Airbook EGH");
 
 		EINK_TOLINO = (BRAND.toLowerCase().contentEquals("tolino") && (MODEL.toLowerCase().contentEquals("imx50_rdp")) ) || 		// SHINE
-				(MODEL.toLowerCase().contentEquals("tolino") && DEVICE.toLowerCase().contentEquals("tolino_vision2")); //Tolino Vision HD4 doesn't show any Brand, only Model=tolino and  DEVICE=tolino_vision2)
+				(MODEL.toLowerCase().contentEquals("tolino") && DEVICE.toLowerCase().contentEquals("tolino_vision2")) || //Tolino Vision HD4 doesn't show any Brand, only Model=tolino and  DEVICE=tolino_vision2)
+				(MODEL.toLowerCase().contentEquals("tolino") && DEVICE.toLowerCase().contentEquals("ntx_6sl"));
+
+		EINK_SOFT_REFRESH = (MODEL.toLowerCase().contentEquals("tolino") && DEVICE.toLowerCase().contentEquals("ntx_6sl")); // E-INk device where we need soft-refresh like Tolino Vision4 with FW 11.2.3
 
 
 		EINK_SCREEN = EINK_SONY || EINK_NOOK || EINK_ONYX || EINK_DNS || EINK_TOLINO; // TODO: set to true for eink devices like Nook Touch
