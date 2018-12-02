@@ -43,7 +43,6 @@ public class Dictionaries {
 
 	public void findDictionaries(BaseActivity act)
 	{
-
 		List<String> packageNames = act.getInstalledDictionaries();
 		ArrayList<DictInfo> dics2Add = new ArrayList<>();
 		for (DictInfo dict : dictsDynamic) {
@@ -68,12 +67,11 @@ public class Dictionaries {
 			}
 		}
 
-		if (dics2Add.size() > 0) {
-			addDictionary(dics2Add);
-		}
+		addDictionary(dics2Add);
 
 		currentDictionary = defaultDictionary();
 		currentDictionary2 = defaultDictionary();
+
 
 	}
 
