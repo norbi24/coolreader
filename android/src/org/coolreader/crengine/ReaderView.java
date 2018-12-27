@@ -121,13 +121,22 @@ public class ReaderView implements android.view.SurfaceHolder.Callback, Settings
 				*/
 
 				// this seems to work almost always ... we will see
-				surface.requestSoftRefresh(100);
+				//surface.requestSoftRefresh(100); //100 works but sometimes shows only part of image afgter wakeu
+
+				/*
+				surface.requestSoftRefresh(0); // Try with 0 ...
 				drawPage();
+				*/
+
+				reloadDocument();
+
+				/*
 				BackgroundThread.instance().postGUI(new Runnable() {
 					public void run() {
 						mActivity.showReader();
 					}
 				});
+				*/
 
 				log.d("onResume : after bookView.draw()");
 
