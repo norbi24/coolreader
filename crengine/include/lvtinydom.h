@@ -40,6 +40,10 @@
 #include "props.h"
 #include "bookformats.h"
 
+// Allows for requesting older DOM building code (including bugs NOT fixed)
+extern const int gDOMVersionCurrent;
+extern int gDOMVersionRequested;
+
 #define LXML_NO_DATA       0 ///< to mark data storage record as empty
 #define LXML_ELEMENT_NODE  1 ///< element node
 #define LXML_TEXT_NODE     2 ///< text node
@@ -277,7 +281,7 @@ public:
     /// call to invalidate chunk if content is modified
     void modified( lUInt32 addr );
 #endif
-    
+
     /// get or allocate space for rect data item
     void getRendRectData( lUInt32 elemDataIndex, lvdomElementFormatRec * dst );
     /// set rect data item
@@ -1160,7 +1164,7 @@ class ldomDocument;
 
 /**
  * @brief XPointer/XPath object with reference counting.
- * 
+ *
  */
 class ldomXPointer
 {
@@ -2063,7 +2067,7 @@ public:
 #if BUILD_LITE!=1
     /// return selections collection
     ldomXRangeList & getSelections() { return _selections; }
-    
+
     /// get full document height
     int getFullHeight();
     /// returns page height setting

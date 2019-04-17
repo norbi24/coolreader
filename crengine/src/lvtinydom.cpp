@@ -10,6 +10,10 @@
    See LICENSE file for details
 
 *******************************************************/
+#define DOM_VERSION_CURRENT 20180528
+
+extern const int gDOMVersionCurrent = DOM_VERSION_CURRENT;
+int gDOMVersionRequested     = DOM_VERSION_CURRENT;
 
 /// change in case of incompatible changes in swap/cache file format to avoid using incompatible swap file
 // increment to force complete reload/reparsing of old file
@@ -11869,9 +11873,9 @@ void runBasicTinyDomUnitTests()
     doc->compact();
     doc->dumpStatistics();
 #endif
-    
+
     delete doc;
-    
+
 
     CRLog::info("Finished tinyDOM unit test");
 

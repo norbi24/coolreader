@@ -1,42 +1,42 @@
 /** \file lvstsheet.h
-    \brief style sheet
+\brief style sheet
 
-    Implements CSS compiler for CoolReader Engine.
+        Implements CSS compiler for CoolReader Engine.
 
-    Supports only subset of CSS.
+Supports only subset of CSS.
 
-    Selectors supported:
+Selectors supported:
 
-    - * { } - universal selector
-    - element-name { } - selector by element name
-    - element1, element2 { } - several selectors delimited by comma
+- * { } - universal selector
+- element-name { } - selector by element name
+- element1, element2 { } - several selectors delimited by comma
 
-    Properties supported:
+        Properties supported:
 
-    - display
-    - white-space
-    - text-align
-    - vertical-align
-    - font-family
-    - font-size
-    - font-style
-    - font-weight
-    - text-indent
-    - line-height
-    - width
-    - height
-    - margin-left
-    - margin-right
-    - margin-top
-    - margin-bottom
-    - margin
-    
+- display
+- white-space
+- text-align
+- vertical-align
+- font-family
+- font-size
+- font-style
+- font-weight
+- text-indent
+- line-height
+- width
+- height
+- margin-left
+- margin-right
+- margin-top
+- margin-bottom
+- margin
 
-    (c) Vadim Lopatin, 2000-2006
-    This source code is distributed under the terms of
-    GNU General Public License.
 
-    See LICENSE file for details.
+(c) Vadim Lopatin, 2000-2006
+This source code is distributed under the terms of
+        GNU General Public License.
+
+See LICENSE file for details.
 
 */
 
@@ -88,18 +88,50 @@ public:
 
 typedef LVRef<LVCssDeclaration> LVCssDeclRef;
 
+// See https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes
+enum LVCssSelectorPseudoClass
+{
+    csspc_first_child,      // :first-child
+    csspc_first_of_type,    // :first-of-type
+    csspc_last_child,       // :last-child
+    csspc_last_of_type,     // :last-of-type
+    csspc_nth_child,        // :nth-child(even), :nth-child(3n+4)
+    csspc_nth_of_type,      // :nth-of-type()
+    csspc_nth_last_child,   // :nth-last-child()
+    csspc_nth_last_of_type, // :nth-last-of-type()
+    csspc_only_child,       // :only-child
+    csspc_only_of_type,     // :only-of-type
+};
+
+static const char * css_pseudo_classes[] =
+        {
+                "first-child",
+                "first-of-type",
+                "last-child",
+                "last-of-type",
+                "nth-child",
+                "nth-of-type",
+                "nth-last-child",
+                "nth-last-of-type",
+                "only-child",
+                "only-of-type",
+                NULL
+        };
+
 enum LVCssSelectorRuleType
 {
     cssrt_universal,     // *
     cssrt_parent,        // E > F
     cssrt_ancessor,      // E F
     cssrt_predecessor,   // E + F
+    cssrt_predsibling,   // E ~ F
     cssrt_attrset,       // E[foo]
     cssrt_attreq,        // E[foo="value"]
     cssrt_attrhas,       // E[foo~="value"]
     cssrt_attrstarts,    // E[foo|="value"]
     cssrt_id,            // E#id
-    cssrt_class          // E.class
+    cssrt_class,         // E.class
+    cssrt_pseudoclass    // E:pseudo-class, E:pseudo-class(value)
 };
 
 class LVCssSelectorRule
@@ -112,7 +144,7 @@ class LVCssSelectorRule
     lString16 _value;
 public:
     LVCssSelectorRule(LVCssSelectorRuleType type)
-    : _type(type), _id(0), _attrid(0), _next(NULL)
+            : _type(type), _id(0), _attrid(0), _next(NULL)
     { }
     LVCssSelectorRule( LVCssSelectorRule & v );
     void setId( lUInt16 id ) { _id = id; }
@@ -123,6 +155,7 @@ public:
     /// check condition for node
     bool check( const ldomNode * & node );
     lUInt32 getHash();
+    lUInt32 getWeight();
 };
 
 /** \brief simple CSS selector
